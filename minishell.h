@@ -5,82 +5,84 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tmulaud <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/09/04 10:27:28 by tmulaud           #+#    #+#             */
-/*   Updated: 2018/09/11 15:50:54 by tmulaud          ###   ########.fr       */
+/*   Created: 2018/09/17 13:43:00 by tmulaud           #+#    #+#             */
+/*   Updated: 2018/09/26 10:20:24 by tmulaud          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #ifndef MINISHELL_H
 # define MINISHELL_H
-# define BUFF_SIZE 50
+
+#define STDIN 0
+# define EXIT_STATUS
+# define BUFF_SIZE 100
 
 # include <unistd.h>
-#include <stdio.h>
-#include <sys/wait.h>
+# include <stdio.h>
+# include "libft/libft.h"
+# include <sys/wait.h>
+# include <sys/stat.h>
 #include <sys/types.h>
+# include <fcntl.h>
+#include <dirent.h>
 #include <stdlib.h>
-#include <stdio.h>
 
-
-char *commands_str[] = 
+typedef struct	s_vars
 {
-	"cd",
-	"echo",
-	"env",
-	"exit",
-	"setenv",
-	"unsetenv",
-	"help"
-};
+	int			args_len;
+	int			env_len;
+	int			e;
+	int			len;
+	char		*line;
+	char		*path;
+	char		*home;
+	char		*pwd;
+	char		*temp;
+	char		*newlvl;
+	char		*both;
+	char		*var;
+	char		*val;
+	char		**e_args;
+	char		**temp1;
+	char		**temp2;
+	char		**args;
+	char		**paths;
+	char		cwd[512];
+	char		**env;
+}				t_vars;
 
-int (*commands_func[])(char **) =
+typedef struct	s_ints
 {
-	&ft_cd,
-	&ft_echo,
-	&ft_env,
-	&ft_exit,
-	&ft_setenv,
-	&ft_unsetenv,
-	&ft_help
-};
-
-typedef struct struct1
-{
-	int argslen;
-	int	counter1;
-	int counter2;
-	int count;
-	int len;
-	int size;
-}				s1;
+	int			i;
+	int			j;
+	int			l;
+	int			m;
+	int			len;
+}				t_ints;
 
 
-int			get_next_line(int const fd, char **line);
-size_t		ft_strlen(const char *s);
-char		*ft_strchr(const char *s, int c);
-char		*ft_strcpy(char *dst, const char *src);
-char		*ft_strsub(char const *s, unsigned int start, size_t len);
-char		*ft_strnew(size_t size);
-void		*ft_memalloc(size_t size);
-void		*ft_memset(void *b, int c, size_t len);
-int			main(int argc, char **argv);
-int			count_words(char *str);
-char		*malloc_word(char *str);
-int			launch(char **args);
-char		**ft_strsplit(char const *s, char c);
-char		*ft_strndup(const char *s, size_t n);
-int			ft_wordcount(char const *s, char c);
-char		*ft_strncpy(char *dst, const char *src, size_t len);
-int			ft_echo(char **args);
-int			ft_exit(char **args);
-int			ft_cd(char **args);
-int			ft_help(char **args);
-int			ft_setenv(char **args, int len);
-int			ft_unsetenv(char **args, int len);
-int			delegate(char **args, int len);
-int			ft_env(void);
-int			ft_strcmp(const char *s1, const char *s2);
-int 		execute(char **args);
+
+void			ft_init_vars(t_vars *t_v);
+void			ft_check_args(t_vars *t_v, int i, const char **in);
+void			ft_extern(t_vars *t_v);
+void			ft_check_line(t_vars *t_v);
+void			ft_errexit(t_vars *t_v);
+void			ft_shlvl(t_vars *t_v);
+void			ft_shsplit(t_vars *t_v, int i, int j, int k);
+int				ft_argcount(char *str, int i, int counter);
+int				ft_chrpos(char *str, char c);
+void			ft_export(t_vars *t_v);
+void			ft_setenv(t_vars *t_v, int j, int m, int l);
+void			ft_env(t_vars *t_v);
+void			ft_builtin(t_vars *t_v, int i);
+void			ft_echo(t_vars *t_v);
+void			ft_cd(t_vars *t_v);
+char			*ft_envseek(t_vars *t_v, char *arg);
+void			ft_unsetenv(t_vars *t_v);
+int				ft_arrlen(char **arr);
+void			ft_arrdel(char **arr);
+int				ft_chrpos(char *str, char c);
+
+
 
 #endif

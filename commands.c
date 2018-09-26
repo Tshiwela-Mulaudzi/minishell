@@ -5,75 +5,79 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tmulaud <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/09/04 15:15:42 by tmulaud           #+#    #+#             */
-/*   Updated: 2018/09/11 11:24:01 by tmulaud          ###   ########.fr       */
+/*   Created: 2018/09/17 14:10:13 by tmulaud           #+#    #+#             */
+/*   Updated: 2018/09/26 10:25:44 by tmulaud          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int		ft_echo(char **args, struct struct1 s1)
+void	ft_echo(t_vars *t_v)
 {
-	int counter;
-	char *temp;
+	t_ints		k;
+	char		*temp;
 
-	counter = 0;
-	if (argslen > 1)
+	k.i = 0;
+	k.j = -1;
+	if (t_v->args_len > 1)
 	{
-		while (counter < argslen)
+		while (++k.i < t_v->args_len)
 		{
-			temp = args[counter];
+			if (t_v->args[k.i][0] == '$')
+				temp = ft_envseek(t_v, t_v->args[k.i]);
+			else
+				temp = t_v->args[k.i];
 			ft_putstr(temp);
-			if (counter != argslen)
-			{
+			if (k.i != t_v->args_len)
 				write(1, " ", 1);
-			}
 		}
 	}
 	write(1, "\n", 1);
 }
-int		ft_exit(char **args)
-{
-	return EXIT_SUCCESS;
-	return (0);
-}
 
-int		ft_cd(char **args)
+void	ft_cd(t_vars *t_v)
 {
-	if (args[1] == NULL)
+	if (t_v->args_len == 1)
+		t_v->path = ft_strdup(t_v->home);
+	else if (t_v->args_len > 1)
 	{
-		write(1, "Error: \n", 8);
+		if (t_v->args[1][0] == '~')
+		{
+			t_v->newlvl = t_v->args[1];
+			t_v->path = ft_strjoin(t_v->home, ++t_v->newlvl);
+			t_v->newlvl--;
+		}
+		else if (ft_strcmp(t_v->args[1], "-") == 0)
+			t_v->path = ft_strdup(ft_envseek(t_v, "OLDPWD"));
+		else
+			t_v->path = ft_strdup(t_v->args[1]);
+	}
+	t_v->len = chdir(t_v->path);
+	if (t_v->len == 0)
+	{
+		t_v->var = "OLDPWD";
+		t_v->val = t_v->cwd;
+		ft_setenv(t_v, -1, 0, -1);
 	}
 	else
-	{
-		if (chdir(args[1]) != 0)
-		{
-			write(1, "something\n", 10);
-		}
-	}
-	return (1);
+		ft_putendl("Error: chdir Failed");
 }
 
-int ft_help(char **args)
+void			ft_errexit(t_vars *t_v)
 {
-	//hopefully will come back
-	write(1, "Use the system's man command for more\n",38 );
-	return (1);
-}
-
-int ft_env(void)
-{
-	extern char **environ;
-	int counter;
-	char	*var;
-
-	counter = 0;
-	var = *environ;
-
-	while (counter++)
+	ft_arrdel(t_v->env);
+	if (t_v->paths != NULL)
+		ft_arrdel(t_v->paths);
+	if (t_v->e == 1)
+		write(1, "Error: cannot get current working directory", 43);
+	if (t_v->e == 2)
+		write(1, "Error: cannot malloc", 20);
+	if (t_v->e == 9)
 	{
-		ft_putstr(s);
-		ft_putchar('\n');
-		var = *(environ + counter);
+		ft_putendl("Exiting");
+		exit(EXIT_SUCCESS);
 	}
 }
+
+
+

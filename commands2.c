@@ -5,67 +5,83 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tmulaud <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/09/06 11:55:18 by tmulaud           #+#    #+#             */
-/*   Updated: 2018/09/11 14:52:10 by tmulaud          ###   ########.fr       */
+/*   Created: 2018/09/17 15:53:22 by tmulaud           #+#    #+#             */
+/*   Updated: 2018/09/26 09:45:15 by tmulaud          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int		ft_setenv(char **args, int len)
+void		ft_env(t_vars *t_v)
 {
-	extern char **environ;
-	char **temp;
-	int ret;
+	t_ints	k;
 
-	temp = environ;
-	while (temp != NULL)
+	k.i = 0;
+	k.j = -1;
+	k.m = -1;
+	k.len = -1;
+	k.l = -1;
+	if (t_v->args_len == 1)
 	{
-		if (ft_strncpy(args, temp, len) = 0 && temp[counter2] == '=')
-		{
-			ret = 1;
-			ft_strclr(temp);
-			ft_strcpy(temp, args);
-		}
+		while (t_v->env[++k.l] != NULL)
+			ft_putendl(t_v->env[k.l]);
 	}
-	if (ret != 1)
-	{
-		ret = 0;
-		temp = (char **)malloc(sizeof(char *) * size + 1);
-		ft_memcpy(temp, environ, sizeof(char *) * count);
-		environ = temp;
-		ft_strcpy(environ(count), args);
-		environ(count) + 1 = NULL;
-	}
-	return (ret);
 }
 
-int ft_ensetenv(char **args, int len)
+void		ft_unsetenv(t_vars *t_v)
 {
-	extern char **environ;
-	char **temp;
-	int i;
+	t_ints	k;
 
-	while (i < len)
+	k.i = 0;
+	while (++k.i < t_v->args_len)
 	{
-		if (args[counter1][counter2] == '\0' || args[counter1][counter2] == NULL || 
-				ft_strchr(args[counter2], '=') != NULL)
+		k.j = -1;
+		k.l = -1;
+		k.len = ft_strlen(t_v->args[k.i]);
+		if (ft_envseek(t_v, t_v->args[k.i]) != NULL)
 		{
-			continue;
-		}
-		temp = environ;
-		len = ft_strlen(args[count]);
-		while (temp[count] != NULL)
-		{
-			if (ft_strncmp(args[count], temp[count], len) = 0 ||
-					temp[count][len] == '=')
+			t_v->temp2 = (char **)ft_memalloc(sizeof(char *) * (t_v->env_len));
+			while (++k.l < t_v->env_len)
 			{
-				ret = 0;
-				k--;
-				while (temp++ != 1)
-					temp[count] = temp[count + 1];
+				if (ft_strncmp(t_v->args[k.i], t_v->env[k.l], k.len) == 0
+					&& t_v->env[k.l][k.len] == '=')
+					continue;
+				else
+					t_v->temp2[++k.j] = ft_strdup(t_v->env[k.l]);
 			}
+			t_v->temp2[++k.j] = NULL;
+			ft_arrdel(t_v->env);
+			t_v->env = t_v->temp2;
+			t_v->env_len--;
 		}
 	}
-	return (ret);
+}
+
+void		ft_setenv(t_vars *t_v, int j, int m, int l)
+{
+	t_v->len = ft_strlen(t_v->var);
+	t_v->temp = ft_strjoin(t_v->var, "=");
+	t_v->both = ft_strjoin(t_v->temp, t_v->val);
+	while (t_v->env[++j] != NULL && m != 1)
+	{
+		if (ft_strncmp(t_v->var, t_v->env[j], t_v->len) == 0
+			&& t_v->env[j][t_v->len] == '=')
+		{
+			ft_strdel(&t_v->env[j]);
+			t_v->env[j] = t_v->both;
+			m = 1;
+		}
+	}
+	if (m != 1)
+	{
+		t_v->temp2 = (char **)ft_memalloc(sizeof(char *) * (t_v->env_len + 2));
+		while (++l < t_v->env_len)
+			t_v->temp2[l] = ft_strdup(t_v->env[l]);
+		t_v->temp2[l] = t_v->both;
+		t_v->temp2[++l] = NULL;
+		ft_arrdel(t_v->env);
+		t_v->env = t_v->temp2;
+		t_v->env_len++;
+	}
+	ft_strdel(&t_v->temp);
 }
